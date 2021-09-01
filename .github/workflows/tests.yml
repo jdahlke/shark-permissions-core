@@ -1,0 +1,43 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+
+name: Tests
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+
+jobs:
+  rspec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby 2.7
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundle install
+      - name: Run RSpec
+        run: bundle exec rspec
+
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby 2.7
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundle install
+      - name: Run Rubocop
+        run: bundle exec rubocop
