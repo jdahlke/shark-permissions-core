@@ -24,8 +24,16 @@ module Shark
         @privileges[:new][key] = new_value
       end
 
+      # @return [Boolean]
+      # @api public
+      def empty?
+        effect.empty? && privileges.empty?
+      end
+
+      # @return [Boolean]
+      # @api public
       def present?
-        @effect.present? || privileges.present?
+        !empty?
       end
     end
   end
