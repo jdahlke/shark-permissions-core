@@ -80,7 +80,7 @@ RSpec.describe Shark::Permissions::List do
         'animal::bird::blackbird': {
           resource: 'animal::bird::blackbird',
           privileges: {
-            'sing': false
+            'sing': true
           },
           title: 'Blackbird'
         },
@@ -110,7 +110,75 @@ RSpec.describe Shark::Permissions::List do
       expect(original).to eq(Fixtures.permissions_list)
     end
 
-    it 'returns merged rules' do
+    it 'returns updated rules' do
+      expect(subject).to eq(expected_list)
+    end
+
+    it 'does not track changes' do
+      subject.each { |name, rule| expect(rule.changes).to be_empty }
+    end
+  end
+
+  describe '#update' do
+    let(:original) { Fixtures.permissions_list }
+    let(:other) do
+      Shark::Permissions::List.new({
+        'animal' => {
+          resource: 'animal',
+          privileges: { 'run' => true }
+        },
+        'animal::bird::blackbird' => {
+          resource: 'animal::bird::blackbird',
+          privileges:  { 'sing' => false }
+        }
+      })
+    end
+    let(:expected_list) do
+      Shark::Permissions::List.new({
+        'animal': {
+          resource: 'animal',
+          privileges: {
+            'move': true,
+            'run': true
+          },
+          title: 'Animal'
+        },
+        'animal::bird': {
+          resource: 'animal::bird',
+          privileges: {
+            'fly': true
+          },
+          title: 'Bird'
+        },
+        'animal::bird::blackbird': {
+          resource: 'animal::bird::blackbird',
+          privileges: {
+            'sing': false
+          },
+          title: 'Blackbird'
+        },
+        'animal::cat': {
+          resource: 'animal::cat',
+          privileges: {
+            'meow': true
+          },
+          title: 'Cat'
+        },
+        'tree': {
+          resource: 'tree',
+          privileges: {
+            'move': false
+          },
+          title: 'Tree'
+        }
+      })
+    end
+
+    subject { original.update(other) }
+
+    it { is_expected.to be(original) }
+
+    it 'returns updated rules' do
       expect(subject).to eq(expected_list)
     end
 

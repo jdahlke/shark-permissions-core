@@ -62,9 +62,7 @@ module Shark
       # @return Boolean
       # @api public
       def ==(other)
-        resource == other.resource &&
-          effect == other.effect &&
-          privileges == other.privileges
+        resource == other.resource && effect == other.effect && privileges == other.privileges
       end
 
       def as_json(*_args)
