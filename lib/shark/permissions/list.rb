@@ -107,14 +107,42 @@ module Shark
         self.class.new(filtered_rules)
       end
 
+      # @param other_list [Shark::Permissions::List]
+      # @return [Hash]
+      # @api public
       def merge(other_list)
         clone.merge!(other_list)
       end
 
+      # Merges another list into this list. Allowed privileges are not removed.
+      # Changes are not tracked.
+      #
+      # @param other_list [Shark::Permissions::List]
+      # @return [Hash]
+      # @api public
       def merge!(other_list)
-        other_list.each do |key, other_rule|
-          rules[key] = Permissions::Rule.new(resource: key) unless rules.key?(key)
-          rules[key].update(other_rule)
+        other_list.each do |resource, rule|
+          if rules.key?(resource)
+            privileges = rules[resource].privileges
+            rule.privileges.each { |k, v| privileges[k] = privileges[k] || v }
+          else
+            rules[resource] = rule.clone
+          end
+        end
+
+        self
+      end
+
+      # Updates this list with rules from another list.
+      # All affected rules are updated and changes are tracked.
+      #
+      # @param other_list [Shark::Permissions::List]
+      # @return [Hash]
+      # @api public
+      def update(other_list)
+        other_list.each do |resource, other_rule|
+          rules[resource] = Permissions::Rule.new(resource: resource) unless rules.key?(resource)
+          rules[resource].update(other_rule)
         end
 
         self
